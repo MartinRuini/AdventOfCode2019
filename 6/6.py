@@ -1,11 +1,15 @@
 import numpy as np
 
-#data = np.genfromtxt('test.txt',delimiter=')',dtype=str)
+def make_chain(obj, orbits):
+  next_object = orbits[obj]
+  chain = [ next_object ]
+  while next_object != 'COM':
+    next_object = orbits[ next_object ]
+    chain.append( next_object )
+  return chain
+
+#data = np.genfromtxt('test2.txt',delimiter=')',dtype=str)
 data = np.genfromtxt('input.txt',delimiter=')',dtype=str)
-
-print(data)
-
-orbits = dict( zip(data[:,1],data[:,0]) )
 
 orbited_by = {}
 
@@ -20,7 +24,6 @@ for orb in data:
     depth[ orb[1] ] = 1
 
 while len(depth)<len(data):
-  print(len(depth))
   for center, orbiters in orbited_by.items():
     if center in depth:
       for orb in orbiters:
@@ -29,3 +32,26 @@ while len(depth)<len(data):
       continue
 
 print(sum(depth.values()))
+
+orbits = dict( zip(data[:,1],data[:,0]) )
+
+chain = {}
+for obj in ['YOU','SAN']:
+  chain[obj] = make_chain(obj,orbits)
+
+#print(chain)
+
+distance_to_intersection = {
+  'YOU' : 0,
+  'SAN' : 0
+}
+
+from itertools import permutations
+for first,second in permutations(['YOU','SAN'], 2):
+  for obj in chain[first]:
+    if obj in chain[second]:
+      break
+    else:
+      distance_to_intersection[first] += 1
+
+print(distance_to_intersection, sum(distance_to_intersection.values()))
