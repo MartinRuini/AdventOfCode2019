@@ -4,9 +4,9 @@ def get_digit(number, n):
 def get_mode(value, nparam):
   return get_digit(value, nparam+1)
 
-def run_intcode(_intcode,input_sequence=None):
+def run_intcode(_intcode,input_sequence=None,start_from_index=0):
   intcode = _intcode.copy()
-  i = 0
+  i = start_from_index
   output = []
   while i<len(intcode):
     _intcode = intcode[i] % 100
@@ -35,11 +35,10 @@ def run_intcode(_intcode,input_sequence=None):
       else:
         input_signal = next(input_sequence)
       intcode[ intcode[i+1] ] = input_signal
-      input_signal = None
       i += 2
     elif _intcode==4:
-      print( param[1] )
-      output = param[1]
+#      print( param[1] )
+      return param[1], i+2, intcode
       i += 2
     elif _intcode==5:
       if param[1]==0:
@@ -64,7 +63,8 @@ def run_intcode(_intcode,input_sequence=None):
         intcode[ intcode[i+3] ] = 0
       i += 4
     elif _intcode==99:
-      return output
+#      print('Finished succesfully')
+      return None, None, intcode
     else:
       print(f'error at step {i} ({intcode[i]})!!!')
       break
@@ -73,6 +73,7 @@ import numpy as np
 from itertools import permutations
 intcode = np.genfromtxt('input.txt',delimiter=',',dtype=int)
 
+################## PART 1: NORMAL MODE
 #intcode = [3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0]
 #phase_setting = [4,3,2,1,0]
 
@@ -84,7 +85,7 @@ for phase_setting in permutations(range(5), 5):
   input_signal = 0
   for amp in range(5):
 #    print('Start machine ',amp)
-    input_signal = run_intcode(intcode, iter([phase_setting[amp],input_signal]))
+    input_signal,_index,_intcode = run_intcode(intcode, iter([phase_setting[amp],input_signal]))
   signal_to_thruster[ phase_setting ] = input_signal
 
 max_signal = max(signal_to_thruster.values())
@@ -92,3 +93,33 @@ max_signal = max(signal_to_thruster.values())
 for phase_setting, signal in signal_to_thruster.items():
   if signal==max_signal:
     print(f'maximal signal ({max_signal}) for phase setting sequence {phase_setting}')
+    break
+
+################# PART 2: FEEDBACK LOOP MODE
+#intcode = [3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5]
+#intcode = [3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,-5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10]
+signal_to_thruster = {}
+intcode_per_amp = {}
+next_index = {}
+for phase_setting in permutations(range(5,10), 5):
+  for amp in range(5):
+    intcode_per_amp[ amp ] = intcode.copy()
+    next_index[ amp ] = 0
+  next_input = 0
+  first = True
+  while not (next_input is None):
+    signal_to_thruster[ phase_setting ] = next_input
+    for amp in range(5):
+      if first:
+        input_sequence = [phase_setting[amp], next_input]
+      else:
+        input_sequence = [next_input]
+      next_input, next_index[ amp ], intcode_per_amp[ amp ] = run_intcode( intcode_per_amp[amp], iter(input_sequence), next_index[amp])
+    first = False
+
+max_signal = max(signal_to_thruster.values())
+
+for phase_setting, signal in signal_to_thruster.items():
+  if signal==max_signal:
+    print(f'maximal signal ({max_signal}) for phase setting sequence {phase_setting}')
+    break
