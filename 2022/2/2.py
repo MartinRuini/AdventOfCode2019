@@ -4,30 +4,17 @@ LOSE = 0
 WIN  = 6
 
 points_for_playing = {
-        'X' : 1, #rock
-        'Y' : 2, #paper
-        'Z' : 3, #scissors
         'A' : 1, #rock
         'B' : 2, #paper
         'C' : 3, #scissors
         }
 
-opponent = {
-        'X' : {
-            'A' : DRAW, #rock
-            'B' : LOSE, #paper
-            'C' : WIN,  #scissors
-            },
-        'Y' : {
-            'A' : WIN,
-            'B' : DRAW,
-            'C' : LOSE,
-            },
-        'Z' : {
-            'A' : LOSE,
-            'B' : WIN,
-            'C' : DRAW,
-            }
+move_cycle = ('A', 'B', 'C') # move at index i loses against i+1
+
+part1 = {
+        'X' : 'A', #rock
+        'Y' : 'B', #paper
+        'Z' : 'C', #scissors
         }
 
 points_part2 = {
@@ -42,15 +29,28 @@ my_move_part2 = {
         'Z' : +1,
         }
 
-move_cycle = ('A', 'B', 'C')
-
 if __name__=='__main__':
     my_score_part1 = 0
     my_score_part2 = 0
     with open(INPUT) as input_data:
         for line in input_data.readlines():
-            opp_move, my_move = line.strip().split(' ')
-            my_score_part1 += points_for_playing[my_move] + opponent[my_move][opp_move]
-            my_move_idx = (move_cycle.index(opp_move)+my_move_part2[my_move])%len(move_cycle)
-            my_score_part2 += points_for_playing[move_cycle[my_move_idx]] + points_part2[my_move]
+            opp_move, instruction = line.strip().split(' ')
+
+            #part 1
+            my_move = part1[instruction]
+            opp_move_idx = move_cycle.index(opp_move)
+            my_move_idx  = move_cycle.index(my_move)
+            if opp_move_idx==(my_move_idx+1)%len(move_cycle):
+                outcome = LOSE
+            elif opp_move_idx==my_move_idx:
+                outcome = DRAW
+            else:
+                outcome = WIN
+            my_score_part1 += points_for_playing[my_move] + outcome
+
+            #part 2
+            my_move_idx = (move_cycle.index(opp_move)+my_move_part2[instruction])%len(move_cycle)
+            my_move     = move_cycle[my_move_idx]
+            my_score_part2 += points_for_playing[my_move] + points_part2[instruction]
+
     print(f'{my_score_part1 = }, {my_score_part2 = }')
