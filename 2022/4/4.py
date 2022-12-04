@@ -14,7 +14,8 @@ def main():
 
             #part 1
             #if ((first_assignment_start <= second_assignment_start) and (first_assignment_stop >= second_assignment_stop)) or ((second_assignment_start <= first_assignment_start) and (second_assignment_stop >= first_assignment_stop)): # faster
-            if all(first_section in second_assignment_range for first_section in first_assignment_range) or all(second_section in first_assignment_range for second_section in second_assignment_range): # slower
+            if ((first_assignment_start in second_assignment_range) and (first_assignment_stop in second_assignment_range)) or ((second_assignment_start in first_assignment_range) and (second_assignment_stop in first_assignment_range)): # medium
+            #if all(first_section in second_assignment_range for first_section in first_assignment_range) or all(second_section in first_assignment_range for second_section in second_assignment_range): # slower
                 complete_overlaps += 1
 
             #part 2
