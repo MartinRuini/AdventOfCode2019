@@ -13,8 +13,8 @@ def main():
             second_assignment_range = range(second_assignment_start,second_assignment_stop+1)
 
             #part 1
-            #if ((first_assignment_start <= second_assignment_start) and (first_assignment_stop >= second_assignment_stop)) or ((second_assignment_start <= first_assignment_start) and (second_assignment_stop >= first_assignment_stop)):
-            if all(first_section in second_assignment_range for first_section in first_assignment_range) or all(second_section in first_assignment_range for second_section in second_assignment_range):
+            #if ((first_assignment_start <= second_assignment_start) and (first_assignment_stop >= second_assignment_stop)) or ((second_assignment_start <= first_assignment_start) and (second_assignment_stop >= first_assignment_stop)): # faster
+            if all(first_section in second_assignment_range for first_section in first_assignment_range) or all(second_section in first_assignment_range for second_section in second_assignment_range): # slower
                 complete_overlaps += 1
 
             #part 2
