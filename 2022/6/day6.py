@@ -1,5 +1,3 @@
-from pdb import set_trace
-
 INPUT = 'input.txt'
 
 def is_marker(string):
@@ -9,8 +7,8 @@ def is_marker(string):
 
 def main():
     length_of_marker = {
-            'packet'  : 4,
-            'message' : 14
+            'packet'  : 4, #part 1
+            'message' : 14 #part 2
             }
     with open(INPUT) as input_data:
         stream = input_data.readline().strip()
