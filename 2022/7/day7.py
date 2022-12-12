@@ -1,8 +1,4 @@
-from pdb import set_trace
-
 INPUT = 'input.txt'
-TOTAL_DISK_SPACE = 70000000
-NEEDED_SPACE     = 30000000
 
 def parse_line(line):
     if line.startswith('$ cd'):
@@ -71,6 +67,9 @@ def main():
     print(f'{tot_size_of_small_directories = }')
 
     #part 2
+    TOTAL_DISK_SPACE = 70000000
+    NEEDED_SPACE     = 30000000
+
     space_to_be_freed = directories['root'] - (TOTAL_DISK_SPACE-NEEDED_SPACE)
     if space_to_be_freed>0:
         candidates_to_delete = (size for size in directories.values() if size>space_to_be_freed)
