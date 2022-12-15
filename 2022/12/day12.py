@@ -1,7 +1,5 @@
 import numpy as np
 from string import ascii_lowercase
-import multiprocessing
-from time import perf_counter
 from matplotlib import pyplot as plt
 
 INPUT = 'input.txt'
@@ -50,48 +48,38 @@ class PathFinder():
             for neighbour in self.find_valid_neighbours(*path[-1]):
                     self.paths.append([path[-1],neighbour])
 
-    def find_shortest_path(self, start_xy=None):
+    def find_shortest_path(self, part):
         self.reset()
-        if start_xy is None:
-            start_x = self.start_x
-            start_y = self.start_y
-        else:
-            start_x, start_y = start_xy
         path_length_counter = 0
         while True:
-            #if path_length_counter%100==0:
-            #    plt.imshow(self.visited)
-            #    plt.show()
             self.extend_paths()
             if not self.paths: #if no paths are left, i.e all dead ends
                 return np.inf
             path_length_counter += 1
-            if any(path[-1]==(start_x,start_y) for path in self.paths):
+            if part==1:
+                condition = any(path[-1]==(self.start_x,self.start_y) for path in self.paths)
+            elif part==2:
+                condition = any(self.elevation[path[-1]]==0 for path in self.paths)
+            else:
+                raise ValueError(f'Unknown part {part}')
+
+            if condition:
+                #plt.imshow(self.visited)
+                #plt.show()
                 return path_length_counter
 
 
+
 def main():
-    #part 1
-    tstart = perf_counter()
     path_finder = PathFinder(INPUT)
-    shortest_path = path_finder.find_shortest_path()
-    tstop = perf_counter()
-    print(f'Part 1 {shortest_path = }, time = {tstop-tstart:.2f}')
+
+    #part 1
+    shortest_path = path_finder.find_shortest_path(1)
+    print(f'Part 1 {shortest_path = }')
 
     #part 2
-    tstart = perf_counter()
-    distances = map(path_finder.find_shortest_path, zip(*np.where(path_finder.elevation==0)))
-    shortest_path = min(distances)
-    tstop = perf_counter()
-    print(f'No multiprocessing Part 2 {shortest_path = }, time = {tstop-tstart:.2f}')
-
-    tstart = perf_counter()
-    with multiprocessing.Pool() as pool:
-        distances = pool.map(path_finder.find_shortest_path, zip(*np.where(path_finder.elevation==0)))
-    shortest_path = min(distances)
-    tstop = perf_counter()
-    print(f'w/ multiprocessing Part 2 {shortest_path = }, time = {tstop-tstart:.2f}')
-
+    shortest_path = path_finder.find_shortest_path(2)
+    print(f'Part 2 {shortest_path = }')
 
 if __name__=='__main__':
     main()
